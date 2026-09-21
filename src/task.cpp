@@ -2,7 +2,8 @@
 
 using namespace std;
 
-Task::Task(int id, string name, int priority) {
+Task::Task(int id, string name, int priority)
+{
     this->id = id;
     this->name = name;
     this->priority = priority;
