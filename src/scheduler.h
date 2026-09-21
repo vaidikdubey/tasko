@@ -29,5 +29,6 @@ public:
     void addTask(std::string name, int priority);
     bool addDependency(int taskId, int dependsOnId);
     bool completeTask(int taskId);
+    bool deleteTask(int taskId);
     std::vector<Task> getSchedule();
 };

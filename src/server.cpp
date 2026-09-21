@@ -134,6 +134,27 @@ void Server::start(int port)
             "application/json"
         ); });
 
+    app.Delete("/tasks/:id", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+               { 
+            setCORS(res);
+            int taskId = stoi(req.path_params.at("id"));
+            bool success = scheduler.deleteTask(taskId);
+
+            if(!success) {
+                res.status = 400;
+                res.set_content(
+                    json{
+                        {"error", "Task not found or other tasks depend on it"}}
+                        .dump(),
+                    "application/json");
+                return;
+            }
+
+            res.set_content(
+                json{{"message", "Task deleted successfully"}}.dump(),
+                "application/json"
+            ); });
+
     cout << "Tasko server running on port " << port << endl;
     app.listen("0.0.0.0", port);
 }

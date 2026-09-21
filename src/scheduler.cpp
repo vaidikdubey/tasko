@@ -83,6 +83,40 @@ bool Scheduler::completeTask(int taskId)
     return true;
 }
 
+bool Scheduler::deleteTask(int taskId)
+{
+    if (taskMap.find(taskId) == taskMap.end())
+        return false;
+
+    for (auto &pair : adjList)
+    {
+        for (int depId : pair.second)
+        {
+            if (depId == taskId)
+                return false;
+        }
+    }
+
+    adjList.erase(taskId);
+    taskMap.erase(taskId);
+
+    priority_queue<Task, vector<Task>, TaskComparator> newQueue;
+    priority_queue<Task, vector<Task>, TaskComparator> temp = tasks;
+
+    while (!temp.empty())
+    {
+        Task t = temp.top();
+        temp.pop();
+
+        if (t.id != taskId)
+            newQueue.push(t);
+    }
+
+    tasks = newQueue;
+
+    return true;
+}
+
 vector<Task> Scheduler::getSchedule()
 {
     priority_queue<Task, vector<Task>, TaskComparator> temp = tasks;
