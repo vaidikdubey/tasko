@@ -12,7 +12,7 @@ void Scheduler::addTask(string name, int priority) // O(logN)
 {
     Task task(nextId++, name, priority);
     tasks.push(task);
-    taskMap[task.id] = task;
+    taskMap.insert({task.id, task});
     adjList[task.id] = {};
 }
 
@@ -62,7 +62,7 @@ bool Scheduler::addDependency(int taskId, int dependsOnId)
         return false;
     }
 
-    taskMap[taskId].dependencies.push_back(dependsOnId);
+    taskMap.at(taskId).dependencies.push_back(dependsOnId);
 
     return true;
 }
@@ -74,11 +74,11 @@ bool Scheduler::completeTask(int taskId)
 
     for (int depId : adjList[taskId])
     {
-        if (!taskMap[depId].completed)
+        if (!taskMap.at(depId).completed)
             return false;
     }
 
-    taskMap[taskId].completed = true;
+    taskMap.at(taskId).completed = true;
 
     return true;
 }
@@ -93,21 +93,21 @@ vector<Task> Scheduler::getSchedule()
         Task t = temp.top();
         temp.pop();
 
-        t.completed = taskMap[t.id].completed;
-        t.dependencies = taskMap[t.id].dependencies;
+        t.completed = taskMap.at(t.id).completed;
+        t.dependencies = taskMap.at(t.id).dependencies;
 
         bool depsCompleted = true;
 
         for (int depId : t.dependencies)
         {
-            if (!taskMap[depId].completed)
+            if (!taskMap.at(depId).completed)
             {
                 depsCompleted = false;
                 break;
             }
         }
 
-        if (!t.completed && !depsCompleted)
+        if (!t.completed && depsCompleted)
         {
             sorted.push_back(t);
         }
