@@ -12,8 +12,7 @@ void Server::start(int port)
                     res.set_header("Access-Control-Allow-Origin", "*");
                     res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                     res.set_header("Access-Control-Allow-Headers", "Content-Type");
-                    res.status = 204; 
-                });
+                    res.status = 204; });
 
     auto setCORS = [](httplib::Response &res)
     {
@@ -23,7 +22,8 @@ void Server::start(int port)
     };
 
     // GET /tasks - get all scheduled tasks
-    app.Get("/tasks", [this, setCORS](const httplib::Request& req, httplib::Response& res) {
+    app.Get("/tasks", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+            {
         setCORS(res);
         json response = json::array();
 
@@ -37,11 +37,11 @@ void Server::start(int port)
             });
         }
 
-        res.set_content(response.dump(), "application/json");
-    });
+        res.set_content(response.dump(), "application/json"); });
 
     // POST /tasks - add a new task
-    app.Post("/tasks", [this, setCORS](const httplib::Request& req, httplib::Response& res) {
+    app.Post("/tasks", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+             {
         setCORS(res);
         try {
             json body = json::parse(req.body);
@@ -70,11 +70,11 @@ void Server::start(int port)
                 json{{"error", "Invalid JSON"}}.dump(),
                 "application/json"
             );
-        }
-    });
+        } });
 
     // POST /tasks/dependency - add dependency between tasks
-    app.Post("/tasks/dependency", [this, setCORS](const httplib::Request& req, httplib::Response& res) {
+    app.Post("/tasks/dependency", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+             {
         setCORS(res);
         try {
             json body = json::parse(req.body);
@@ -111,11 +111,11 @@ void Server::start(int port)
                 json{{"error", "Invalid JSON"}}.dump(),
                 "application/json"
             );
-        }
-    });
+        } });
 
-    // PUT /tasks/:id/complete - mark task as complete
-    app.Put("/tasks/:id/complete", [this, setCORS](const httplib::Request& req, httplib::Response& res) {
+    // PATCh /tasks/:id/complete - mark task as complete
+    app.Patch("/tasks/:id/complete", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+              {
         setCORS(res);
         int taskId = stoi(req.path_params.at("id"));
         bool success = scheduler.completeTask(taskId);
@@ -132,8 +132,7 @@ void Server::start(int port)
         res.set_content(
             json{{"message", "Task completed successfully"}}.dump(),
             "application/json"
-        );
-    });
+        ); });
 
     cout << "Tasko server running on port " << port << endl;
     app.listen("0.0.0.0", port);
