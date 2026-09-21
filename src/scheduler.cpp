@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -113,6 +114,54 @@ bool Scheduler::deleteTask(int taskId)
     }
 
     tasks = newQueue;
+
+    return true;
+}
+
+Task *Scheduler::getTaskById(int taskId)
+{
+    if (taskMap.find(taskId) == taskMap.end())
+        return NULL;
+
+    return &taskMap.at(taskId);
+}
+
+vector<Task> Scheduler::getAllTasks()
+{
+    vector<Task> allTasks;
+    priority_queue<Task, vector<Task>, TaskComparator> temp = tasks;
+
+    while (!temp.empty())
+    {
+        Task t = temp.top();
+        temp.pop();
+
+        t.completed = taskMap.at(t.id).completed;
+        t.dependencies = taskMap.at(t.id).dependencies;
+
+        allTasks.push_back(t);
+    }
+
+    return allTasks;
+}
+
+bool Scheduler::removeDependency(int taskId, int dependsOnId)
+{
+    if (taskMap.find(taskId) == taskMap.end())
+        return false;
+    if (taskMap.find(dependsOnId) == taskMap.end())
+        return false;
+
+    auto &deps = adjList[taskId];
+    auto it = find(deps.begin(), deps.end(), dependsOnId);
+
+    deps.erase(it);
+
+    auto &taskDeps = taskMap.at(taskId).dependencies;
+    auto it2 = find(taskDeps.begin(), taskDeps.end(), dependsOnId);
+
+    if (it2 != taskDeps.end())
+        taskDeps.erase(it2);
 
     return true;
 }

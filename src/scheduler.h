@@ -30,5 +30,8 @@ public:
     bool addDependency(int taskId, int dependsOnId);
     bool completeTask(int taskId);
     bool deleteTask(int taskId);
+    Task *getTaskById(int taskId);
+    std::vector<Task> getAllTasks();
+    bool removeDependency(int taskId, int dependsOnId);
     std::vector<Task> getSchedule();
 };

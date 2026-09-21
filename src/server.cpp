@@ -39,6 +39,89 @@ void Server::start(int port)
 
         res.set_content(response.dump(), "application/json"); });
 
+    // GET /tasks/all - get all tasks regardless of status
+    app.Get("/tasks/all", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+            { 
+        setCORS(res);
+        json response = json::array();
+        
+        for(const Task &task: scheduler.getAllTasks()) {
+            response.push_back({{"id", task.id},
+                            {"name", task.name},
+                            {"priority", task.priority},
+                            {"completed", task.completed},
+                            {"dependencies", task.dependencies}});
+        } 
+                
+        res.set_content(response.dump(), "application/json"); });
+
+    // GET /tasks/:id - get single task
+    app.Get("/tasks/:id", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+            {
+        setCORS(res);
+        int taskId = stoi(req.path_params.at("id"));
+        Task* task = scheduler.getTaskById(taskId);
+
+        if (task == nullptr) {
+            res.status = 404;
+            res.set_content(
+                json{{"error", "Task not found"}}.dump(),
+                "application/json"
+            );
+            return;
+        }
+
+        json response = {
+            {"id", task->id},
+            {"name", task->name},
+            {"priority", task->priority},
+            {"completed", task->completed},
+            {"dependencies", task->dependencies}
+        };
+
+        res.set_content(response.dump(), "application/json"); });
+
+    // DELETE - /tasks/dependency - remove a dependency
+    app.Delete("/tasks/dependency", [this, setCORS](const httplib::Request &req, httplib::Response &res)
+               {
+        setCORS(res);
+        try {
+            json body = json::parse(req.body);
+
+            if (!body.contains("taskId") || !body.contains("dependsOnId")) {
+                res.status = 400;
+                res.set_content(
+                    json{{"error", "taskId and dependsOnId are required"}}.dump(),
+                    "application/json"
+                );
+                return;
+            }
+
+            int taskId = body["taskId"];
+            int dependsOnId = body["dependsOnId"];
+            bool success = scheduler.removeDependency(taskId, dependsOnId);
+
+            if (!success) {
+                res.status = 400;
+                res.set_content(
+                    json{{"error", "Dependency not found"}}.dump(),
+                    "application/json"
+                );
+                return;
+            }
+
+            res.set_content(
+                json{{"message", "Dependency removed successfully"}}.dump(),
+                "application/json"
+            );
+            } catch (exception& e) {
+                res.status = 400;
+                res.set_content(
+                    json{{"error", "Invalid JSON"}}.dump(),
+                    "application/json"
+                );
+            } });
+
     // POST /tasks - add a new task
     app.Post("/tasks", [this, setCORS](const httplib::Request &req, httplib::Response &res)
              {
