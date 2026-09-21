@@ -1,5 +1,4 @@
 #include "scheduler.h"
-#include <algorithm>
 
 using namespace std;
 
@@ -8,18 +7,22 @@ Scheduler::Scheduler()
     nextId = 1;
 }
 
-void Scheduler::addTask(string name, int priority)
+void Scheduler::addTask(string name, int priority) // O(logN)
 {
     Task task(nextId++, name, priority);
-    tasks.push_back(task);
+    tasks.push(task);
 }
 
-vector<Task> Scheduler::getSchedule()
+vector<Task> Scheduler::getSchedule() // O(NlogN)
 {
-    vector<Task> sorted = tasks;
+    priority_queue<Task, vector<Task>, TaskComparator> temp = tasks;
+    vector<Task> sorted;
 
-    sort(sorted.begin(), sorted.end(), [](const Task &a, const Task &b)
-         { return a.priority > b.priority; });
+    while (!temp.empty()) // O(NlogN -> due to popping N elements)
+    {
+        sorted.push_back(temp.top()); // O(1)
+        temp.pop();                   // O(logN)
+    }
 
     return sorted;
 }
