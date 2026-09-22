@@ -196,7 +196,7 @@ void Server::start(int port)
             );
         } });
 
-    // PATCh /tasks/:id/complete - mark task as complete
+    // PATCH /tasks/:id/complete - mark task as complete
     app.Patch("/tasks/:id/complete", [this, setCORS](const httplib::Request &req, httplib::Response &res)
               {
         setCORS(res);
@@ -216,7 +216,8 @@ void Server::start(int port)
             json{{"message", "Task completed successfully"}}.dump(),
             "application/json"
         ); });
-
+    
+    //DELETE -/tasks/:id - delete task
     app.Delete("/tasks/:id", [this, setCORS](const httplib::Request &req, httplib::Response &res)
                { 
             setCORS(res);

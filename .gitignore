@@ -1,4 +1,11 @@
+# C++ build
 build/
+server/build/
 *.o
 *.exe
 .cache/
+
+# Next.js
+client/.next/
+client/node_modules/
+client/.env*
