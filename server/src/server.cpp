@@ -10,14 +10,14 @@ void Server::start(int port)
     app.Options(".*", [](const httplib::Request &req, httplib::Response &res)
                 { 
                     res.set_header("Access-Control-Allow-Origin", "*");
-                    res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                    res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
                     res.set_header("Access-Control-Allow-Headers", "Content-Type");
                     res.status = 204; });
 
     auto setCORS = [](httplib::Response &res)
     {
         res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
         res.set_header("Access-Control-Allow-Headers", "Content-Type");
     };
 
@@ -216,8 +216,8 @@ void Server::start(int port)
             json{{"message", "Task completed successfully"}}.dump(),
             "application/json"
         ); });
-    
-    //DELETE -/tasks/:id - delete task
+
+    // DELETE -/tasks/:id - delete task
     app.Delete("/tasks/:id", [this, setCORS](const httplib::Request &req, httplib::Response &res)
                { 
             setCORS(res);
