@@ -1,53 +1,86 @@
-# Tasko
+# [Tasko](https://usetasko.vercel.app)
 
-A task scheduler with a C++ backend and React frontend. Built to demonstrate applied DSA — not just solving problems, but using data structures to power a real application.
+A priority-based task scheduler with a C++17 backend and React/TypeScript frontend.
+
+**Live:** https://usetasko.vercel.app · **API:** https://tasko-server-axtu.onrender.com
+
+---
+
+## Why this exists
+
+Most DSA stays on leetcode. This project applies the same data structures to a real problem — a task scheduler that actually enforces priorities and dependency chains, served over HTTP, with a live frontend.
+
+---
 
 ## How it works
 
-The scheduling engine is written in C++ and uses:
-- **Max-heap** (`std::priority_queue`) — tasks are always ordered by priority, O(log n) insertion, O(1) top access
-- **Adjacency list** (`std::unordered_map`) — stores task dependencies as a directed graph
-- **DFS with color marking** — detects circular dependencies before they're added
-- **Topological filtering** — `GET /tasks` only returns tasks whose dependencies are completed, in priority order
+The scheduling engine is written entirely in C++17. No Node.js, no Python — raw compiled code handling all scheduling decisions. The React frontend consumes it over REST.
 
-The HTTP layer uses [cpp-httplib](https://github.com/yhirose/cpp-httplib) (header-only) and [nlohmann/json](https://github.com/nlohmann/json) (header-only) — no frameworks, just C++17.
+### Data Structures
 
-The frontend is React + TypeScript, consuming the REST API.
+**Max-Heap** (`std::priority_queue`)
+- Tasks are stored in a max-heap ordered by priority
+- O(log n) insertion, O(1) access to highest priority task
+- Used because a scheduler should always know the most urgent task instantly without re-sorting
+
+**Adjacency List** (`unordered_map<int, vector<int>>`)
+- Dependencies between tasks form a directed graph
+- O(1) lookup by task ID, O(V+E) traversal
+- Chosen over adjacency matrix — tasks are sparse, most tasks don't depend on most other tasks
+
+**DFS with Color Marking**
+- Before adding any dependency, DFS runs from the dependent task
+- White (unvisited) → Gray (in current path) → Black (done)
+- If a Gray node is hit, a back edge exists — cycle detected, dependency rejected and rolled back
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Scheduling Engine | C++17 |
-| HTTP Server | cpp-httplib |
-| JSON | nlohmann/json |
-| Frontend | React + TypeScript |
-| Styling | Tailwind CSS |
-| Backend Deployment | Railway (Docker) |
+| HTTP Server | cpp-httplib (header-only) |
+| JSON | nlohmann/json (header-only) |
+| Frontend | Next.js + TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| Visualizer | React Flow |
+| Backend Deployment | Render (Docker) |
 | Frontend Deployment | Vercel |
+
+---
 
 ## API Reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/tasks` | Get actionable tasks (deps met, not completed) |
-| GET | `/tasks/all` | Get all tasks regardless of status |
-| GET | `/tasks/:id` | Get single task by ID |
+| GET | `/tasks` | Actionable tasks — deps met, not completed, priority ordered |
+| GET | `/tasks/all` | All tasks regardless of status |
+| GET | `/tasks/:id` | Single task by ID |
 | POST | `/tasks` | Add a new task |
-| POST | `/tasks/dependency` | Add dependency between tasks |
-| PATCH | `/tasks/:id/complete` | Mark task as completed |
-| DELETE | `/tasks/:id` | Delete a task |
-| DELETE | `/tasks/dependency` | Remove a dependency |
+| POST | `/tasks/dependency` | Add dependency — cycle detection runs first |
+| PATCH | `/tasks/:id/complete` | Mark task completed — validates deps first |
+| DELETE | `/tasks/:id` | Delete task — blocked if others depend on it |
+| DELETE | `/tasks/dependency` | Remove a dependency between two tasks |
+
+---
 
 ## Running locally
 
-### Backend
+### Backend (C++17)
 
-Requirements: GCC 11+, CMake 3.10+
+Requirements: GCC 11+, CMake 3.10+, or Docker
 
+**With Docker:**
 ```bash
-git clone https://github.com/vaidikdubey/tasko.git
-cd tasko
+cd server
+docker build -t tasko-server .
+docker run -p 8080:8080 tasko-server
+```
+
+**Without Docker:**
+```bash
+cd server
 mkdir build && cd build
 cmake ..
 make
@@ -64,19 +97,38 @@ npm install
 npm run dev
 ```
 
-## Data Structures used
+Add `.env.local`:
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
-### Max-Heap (Priority Queue)
-Tasks are stored in a max-heap ordered by priority. The highest priority task is always at the top in O(1). Insertion is O(log n). Used because a scheduler should always know the most urgent task instantly.
+Frontend runs on `http://localhost:3000`
 
-### Adjacency List
-Dependencies between tasks form a directed graph stored as `unordered_map<int, vector<int>>`. Chosen over an adjacency matrix because tasks are sparse — most tasks don't depend on most other tasks.
+---
 
-### DFS Cycle Detection
-Before adding any dependency, we run DFS from the dependent task. Nodes are colored White (unvisited) → Gray (in current path) → Black (done). If we reach a Gray node, we've found a back edge — a cycle. The dependency is rejected and rolled back.
+## Project Structure
 
-## Contributions
-Contributions welcome - fork, branch, commit, push, open a PR.
+```
+tasko/
+├── server/                    C++ backend
+│   ├── src/
+│   │   ├── main.cpp           entry point
+│   │   ├── task.h/.cpp        Task struct
+│   │   ├── scheduler.h/.cpp   scheduling engine (heap + graph + DFS)
+│   │   └── server.h/.cpp      HTTP layer (cpp-httplib)
+│   ├── third_party/           httplib.h, json.hpp
+│   ├── CMakeLists.txt
+│   └── Dockerfile
+└── client/                    Next.js frontend
+    ├── app/
+    │   ├── page.tsx            landing page
+    │   ├── dashboard/          task management
+    │   └── visualize/          dependency graph
+    ├── components/
+    └── lib/
+        ├── api.ts              all backend calls
+        └── types.ts            shared types
+```
 
 ## Author
 ### Vaidik Dubey
