@@ -28,48 +28,55 @@ export default function DependencyForm({ tasks, onAdd }: DependencyFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex gap-2 flex-wrap">
-            <select
-                value={taskId}
-                onChange={(e) => setTaskId(Number(e.target.value))}
-                className="flex-1 min-w-32 bg-zinc-900 border border-zinc-700 text-zinc-100 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">Task...</option>
-                {incompleteTasks.map((t) => (
-                    <option key={t.id} value={t.id}>
-                        #{t.id} {t.name}
-                    </option>
-                ))}
-            </select>
-
-            <span className="text-zinc-500 text-sm self-center">depends on</span>
-
-            <select
-                value={dependsOnId}
-                onChange={(e) => setDependsOnId(Number(e.target.value))}
-                className="flex-1 min-w-32 bg-zinc-900 border border-zinc-700 text-zinc-100 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">Task...</option>
-                {incompleteTasks
-                    .filter((t) => t.id !== taskId)
-                    .map((t) => (
+        <form onSubmit={handleSubmit} className="space-y-2">
+            <div className="flex gap-2 items-center flex-wrap sm:flex-nowrap">
+                <select
+                    value={taskId}
+                    onChange={(e) => setTaskId(Number(e.target.value))}
+                    className="flex-1 min-w-0 bg-zinc-900 border border-zinc-700 text-zinc-100 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">Task...</option>
+                    {incompleteTasks.map((t) => (
                         <option key={t.id} value={t.id}>
                             #{t.id} {t.name}
                         </option>
                     ))}
-            </select>
+                </select>
 
-            <Button
-                type="submit"
-                disabled={loading || taskId === "" || dependsOnId === "" || taskId === dependsOnId}
-                className="bg-purple-600 hover:bg-purple-500 text-white shrink-0"
-            >
-                {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                    <GitBranch className="w-4 h-4" />
-                )}
-            </Button>
+                <span className="text-zinc-500 text-xs shrink-0 hidden sm:inline">
+                    depends on
+                </span>
+
+                <select
+                    value={dependsOnId}
+                    onChange={(e) => setDependsOnId(Number(e.target.value))}
+                    className="flex-1 min-w-0 bg-zinc-900 border border-zinc-700 text-zinc-100 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">Depends on...</option>
+                    {incompleteTasks
+                        .filter((t) => t.id !== taskId)
+                        .map((t) => (
+                            <option key={t.id} value={t.id}>
+                                #{t.id} {t.name}
+                            </option>
+                        ))}
+                </select>
+
+                <Button
+                    type="submit"
+                    disabled={loading || taskId === "" || dependsOnId === "" || taskId === dependsOnId}
+                    className="bg-purple-600 hover:bg-purple-500 text-white shrink-0"
+                >
+                    {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                        <GitBranch className="w-4 h-4" />
+                    )}
+                </Button>
+            </div>
+            <p className="text-[10px] text-zinc-600 sm:hidden">
+                Select a task that depends on another task
+            </p>
         </form>
     );
 }
