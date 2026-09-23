@@ -8,10 +8,10 @@ export default function Home() {
             {/* Header */}
             <header className="border-b border-zinc-800/50 px-4 sm:px-6 py-4">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
-                    <Link href="#hero" className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <CheckSquare className="w-5 h-5 text-blue-400" />
                         <span className="font-bold text-zinc-100">Tasko</span>
-                    </Link>
+                    </div>
                     <div className="flex items-center gap-3">
                         <Link
                             href="https://github.com/vaidikdubey/tasko"
@@ -32,7 +32,7 @@ export default function Home() {
             </header>
 
             {/* Hero */}
-            <section id="hero" className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
+            <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
                 <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs px-3 py-1.5 rounded-full mb-6">
                     <Cpu className="w-3.5 h-3.5" />
                     C++17 Backend · DSA Applied
@@ -293,12 +293,12 @@ export default function Home() {
             {/* Footer */}
             <footer className="border-t border-zinc-800 py-8">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <Link href="#hero" className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <CheckSquare className="w-4 h-4 text-blue-400" />
                         <span className="text-sm font-semibold text-zinc-300">Tasko</span>
                         <span className="text-zinc-600 text-sm">·</span>
                         <Link href="https://heyvaidik.vercel.app" target="_blank" className="text-zinc-500 text-sm hover:text-zinc-200 transition">Built by Vaidik Dubey</Link>
-                    </Link>
+                    </div>
                     <div className="flex items-center gap-4">
                     <Link
                         href="https://github.com/vaidikdubey/tasko"
