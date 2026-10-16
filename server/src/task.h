@@ -1,4 +1,4 @@
-#pragma once // Telling compiler to read this file only once even if multiple imports are +nt
+#pragma once // Telling compiler to read this file only once even if multiple imports are present
 
 #include <string>
 #include <vector>
